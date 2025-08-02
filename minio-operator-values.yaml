@@ -1,0 +1,116 @@
+operator:
+  env:
+    - name: OPERATOR_STS_ENABLED
+      value: "on"
+    - name: MINIO_CONSOLE_TLS_ENABLE
+      value: "off"
+  serviceAccountAnnotations: []
+  additionalLabels: {}
+  image:
+    repository: quay.io/minio/operator
+    tag: v5.0.17
+    pullPolicy: IfNotPresent
+  imagePullSecrets: [ ]
+  runtimeClassName: ~
+  initContainers: [ ]
+  replicaCount: 2
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    fsGroup: 1000
+  containerSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile: null
+      # type: RuntimeDefault
+  volumes: [ ]
+  volumeMounts: [ ]
+  nodeSelector: { }
+  priorityClassName: ""
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: name
+                operator: In
+                values:
+                  - minio-operator
+          topologyKey: kubernetes.io/hostname
+  tolerations: [ ]
+  topologySpreadConstraints: [ ]
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+      ephemeral-storage: 500Mi
+console:
+  enabled: true
+  additionalLabels: {}
+  image:
+    repository: quay.io/minio/operator
+    tag: v5.0.17
+    pullPolicy: IfNotPresent
+  env: [ ]
+  imagePullSecrets: [ ]
+  runtimeClassName: ~
+  initContainers: [ ]
+  replicaCount: 1
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: name
+                operator: In
+                values:
+                  - minio-operator
+          topologyKey: kubernetes.io/hostname
+  tolerations: [ ]
+  topologySpreadConstraints: [ ]
+  resources:
+    requests:
+      cpu: 0.25
+      memory: 512Mi
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+  containerSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile: null
+    #   type: RuntimeDefault
+  readOnly: false
+
+
+  ingress:
+    enabled: false
+    ingressClassName: ""
+    labels: { }
+    annotations: { }
+    tls: [ ]
+    host: console.local
+    path: /
+    pathType: Prefix
+    number: 9090
+
+  volumes:
+    - name: tmp
+      emptyDir: {}
+
+  volumeMounts:
+    - name: tmp
+      readOnly: false
+      mountPath: /tmp/certs/CAs
